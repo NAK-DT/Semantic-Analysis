@@ -1,10 +1,12 @@
+import os
 import warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 warnings.filterwarnings('ignore')
 from dataset import loadDataset
 from preprocessing import padding, splitData
 from utils import get_word_index, decodeReview
 from model import lstmmodel, nnmodel
-
+from train import train, evaluate, plot_history
 
 X, y = loadDataset()
 
@@ -17,7 +19,7 @@ index_to_word = get_word_index()
 print(decodeReview(X_train[0], index_to_word))
 print("Label:", y_train[0])
 
-model_type = "lstm"
+model_type = "nn"
 
 if model_type == "lstm":
     model = lstmmodel()
@@ -27,4 +29,8 @@ else:
     raise ValueError("Invalid model type. Choose 'lstm' or 'nn'.")
 model.build(input_shape=(None, 500))
 model.summary()
+
+history = train(model, X_train, y_train, X_val, y_val, epochs=10, batch_size=32)
+evaluate(model, X_test, y_test)
+plot_history(history)
 
