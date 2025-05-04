@@ -1,20 +1,21 @@
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import tensorflow as tf
-from itertools import islice
+import warnings
+warnings.filterwarnings('ignore')
+from dataset import loadDataset
+from preprocessing import padding, splitData
+from utils import get_word_index, decodeReview
+from model import lstmmodel
 
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, confusion_matrix
+X, y = loadDataset()
 
+X_train, X_val, X_test, y_train, y_val, y_test = splitData(X, y)
+X_train = padding(X_train, maxlen=500, padding='pre', truncating='pre', value=0)
+X_val   = padding(X_val, maxlen=500, padding='pre', truncating='pre', value=0)
+X_test  = padding(X_test, maxlen=500, padding='pre', truncating='pre', value=0)
 
-from tensorflow.keras.datasets import imdb
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Embedding, LSTM, Dropout, MaxPooling1D, Conv1D, TimeDistributed, Flatten
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+index_to_word = get_word_index()
+print(decodeReview(X_train[0], index_to_word))
+print("Label:", y_train[0])
 
-vocab_size = 10000
-(X_train, y_train), (X_test, y_test) = imdb.load_data(num_words = vocab_size)
+model = lstmmodel()
+model.summary()
+
